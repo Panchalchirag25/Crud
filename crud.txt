@@ -1,0 +1,101 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Web.UI.WebControls;
+public partial class display : System.Web.UI.Page
+{
+protected void Page_Load(object sender, EventArgs e)
+{
+if (!IsPostBack)
+{
+LoadData();
+}
+}
+SqlConnection db = new SqlConnection
+(System.Configuration.ConfigurationManager.ConnectionStrings
+["myConnectionString"].ConnectionString);
+protected void btnSubmit_Click(object sender, EventArgs e)
+{
+db.Open();
+SqlCommand cmd = new SqlCommand("insert into empx
+(name,age,phno,addr,language) values('"+txtName.Text+"','"+txtAge.Text
++"','"+txtPhno.Text+"','"+txtAddr.Text+"','"+ddLang.SelectedValue+"')",
+db);
+cmd.ExecuteNonQuery();
+ScriptManager.RegisterStartupScript(this, this.GetType(),"script","alert
+('Successfully inserted... ')",true);
+db.Close();
+LoadData();
+}
+void LoadData()
+{
+SqlCommand cmd = new SqlCommand("select * from empx",db);
+SqlDataAdapter da = new SqlDataAdapter(cmd);
+DataTable dt = new DataTable();
+da.Fill(dt);
+GridView1.DataSource = dt;
+GridView1.DataBind();
+clearx();
+}
+
+protected void btnUpdate_Click(object sender, EventArgs e)
+{
+db.Open();
+SqlCommand cmd = new SqlCommand("UPDATE empx set age='" + txtAge.Text +
+"',phno='" + txtPhno.Text + "',addr='" + txtAddr.Text + "',language='"
++ ddLang.SelectedValue + "' where name='" + txtName.Text + "'", db);
+cmd.ExecuteNonQuery();
+ScriptManager.RegisterStartupScript(this, this.GetType(), "script",
+"alert('Updated suxxessfully... ')", true);
+db.Close();
+LoadData();
+}
+void clearx()
+{
+txtName.Text = "";
+txtAge.Text = "";
+txtAddr.Text = "";
+txtPhno.Text = "";
+ddLang.SelectedValue = null;
+}
+protected void btnDelete_Click(object sender, EventArgs e)
+{
+db.Open();
+SqlCommand cmd = new SqlCommand("delete empx where name='" + txtName.Text
++ "'", db);
+cmd.ExecuteNonQuery();
+ScriptManager.RegisterStartupScript(this, this.GetType(), "script",
+"alert('Deleted suxxessfully... ')", true);
+db.Close();
+LoadData();
+}
+protected void btnSearch_Click(object sender, EventArgs e)
+{
+SqlCommand cmd = new SqlCommand("select * from empx where
+name='"+txtName.Text+"'", db);
+SqlDataAdapter da = new SqlDataAdapter(cmd);
+DataTable dt = new DataTable();
+da.Fill(dt);
+GridView1.DataSource = dt;
+GridView1.DataBind();
+clearx();
+}
+protected void txtGet_Click(object sender, EventArgs e)
+{
+db.Open();
+SqlCommand cmd = new SqlCommand("select * from empx where name='" + txtName.Text + "'", db);
+SqlDataReader dr = cmd.ExecuteReader();
+while (dr.Read())
+{
+txtAge.Text = dr.GetValue(2).ToString();
+txtPhno.Text = dr.GetValue(3).ToString();
+txtAddr.Text = dr.GetValue(4).ToString();
+ddLang.SelectedValue = dr.GetValue(5).ToString();
+}
+}
+}
